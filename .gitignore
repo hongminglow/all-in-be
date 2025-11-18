@@ -1,0 +1,30 @@
+# Binaries and build output
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+bin/
+vendor/
+build/
+dist/
+tmp/
+server.log
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# Database related files
+/database
+./database/

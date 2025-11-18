@@ -26,9 +26,11 @@ func New(cfg config.Config, store storage.UserStore) *Server {
 	auth := handlers.NewAuthHandler(store, tokenManager)
 	auth.Register(mux)
 
+	handler := middleware.CORS(cfg.CORSOrigins, middleware.Logging(mux))
+
 	httpServer := &http.Server{
 		Addr:              cfg.HTTPAddress(),
-		Handler:           middleware.Logging(mux),
+		Handler:           handler,
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      10 * time.Second,

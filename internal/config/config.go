@@ -16,6 +16,7 @@ type Config struct {
 	JWTSecret   string
 	JWTIssuer   string
 	JWTTTL      time.Duration
+	CORSOrigins []string
 }
 
 // Load reads configuration from the environment and performs minimal validation.
@@ -25,6 +26,7 @@ func Load() (Config, error) {
 		DatabaseURL: strings.TrimSpace(os.Getenv("DATABASE_URL")),
 		JWTSecret:   strings.TrimSpace(os.Getenv("JWT_SECRET")),
 		JWTIssuer:   fallback(os.Getenv("JWT_ISSUER"), "all-in-backend"),
+		CORSOrigins: parseCSV(fallback(os.Getenv("CORS_ALLOWED_ORIGINS"), "*")),
 	}
 
 	minutes := fallback(os.Getenv("JWT_TTL_MINUTES"), "60")
@@ -54,4 +56,19 @@ func fallback(value, def string) string {
 		return def
 	}
 	return strings.TrimSpace(value)
+}
+
+func parseCSV(input string) []string {
+	parts := strings.Split(input, ",")
+	var out []string
+	for _, part := range parts {
+		trimmed := strings.TrimSpace(part)
+		if trimmed != "" {
+			out = append(out, trimmed)
+		}
+	}
+	if len(out) == 0 {
+		return []string{"*"}
+	}
+	return out
 }

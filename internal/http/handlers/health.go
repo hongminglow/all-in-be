@@ -3,6 +3,8 @@ package handlers
 import (
 	"net/http"
 	"time"
+
+	"github.com/hongminglow/all-in-be/internal/http/respond"
 )
 
 // HealthHandler returns uptime and basic status.
@@ -25,7 +27,7 @@ func (h *HealthHandler) handle(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	respondJSON(w, http.StatusOK, map[string]string{
+	respond.JSON(w, http.StatusOK, "service healthy", map[string]string{
 		"status": "ok",
 		"uptime": time.Since(h.startedAt).Truncate(time.Second).String(),
 	})

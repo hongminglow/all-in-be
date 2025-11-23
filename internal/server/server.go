@@ -23,7 +23,7 @@ func New(cfg config.Config, store storage.UserStore) *Server {
 	health := handlers.NewHealthHandler(time.Now())
 	health.Register(mux)
 	tokenManager := auth.NewTokenManager(cfg.JWTSecret, cfg.JWTIssuer, cfg.JWTTTL)
-	auth := handlers.NewAuthHandler(store, tokenManager)
+	auth := handlers.NewAuthHandler(store, tokenManager, &cfg)
 	auth.Register(mux)
 
 	handler := middleware.CORS(cfg.CORSOrigins, middleware.Logging(mux))

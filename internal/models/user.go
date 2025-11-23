@@ -8,6 +8,9 @@ type User struct {
 	Username     string    `json:"username"`
 	Email        string    `json:"email"`
 	Phone        string    `json:"phone"`
+	Role         string    `json:"role"`
+	Permissions  []string  `json:"permissions"`
+	Balance      float64   `json:"balance"`
 	PasswordHash string    `json:"-"`
 	CreatedAt    time.Time `json:"created_at"`
 }

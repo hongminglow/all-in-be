@@ -16,6 +16,7 @@ type Config struct {
 	JWTSecret   string
 	JWTIssuer   string
 	JWTTTL      time.Duration
+	InitBalance float64
 	CORSOrigins []string
 }
 
@@ -27,6 +28,7 @@ func Load() (Config, error) {
 		JWTSecret:   strings.TrimSpace(os.Getenv("JWT_SECRET")),
 		JWTIssuer:   fallback(os.Getenv("JWT_ISSUER"), "all-in-backend"),
 		CORSOrigins: parseCSV(fallback(os.Getenv("CORS_ALLOWED_ORIGINS"), "*")),
+		InitBalance: 100000.00,
 	}
 
 	minutes := fallback(os.Getenv("JWT_TTL_MINUTES"), "60")

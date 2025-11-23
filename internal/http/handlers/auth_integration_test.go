@@ -16,6 +16,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/hongminglow/all-in-be/internal/auth"
+	"github.com/hongminglow/all-in-be/internal/config"
 	"github.com/hongminglow/all-in-be/internal/models"
 	"github.com/hongminglow/all-in-be/internal/storage/postgres"
 )
@@ -45,7 +46,7 @@ func TestAuthIntegration(t *testing.T) {
 	tokens := auth.NewTokenManager(secret, issuer, ttl)
 
 	mux := http.NewServeMux()
-	authHandler := NewAuthHandler(store, tokens)
+	authHandler := NewAuthHandler(store, tokens, &config.Config{})
 	authHandler.Register(mux)
 
 	ts := httptest.NewServer(mux)
@@ -57,10 +58,10 @@ func TestAuthIntegration(t *testing.T) {
 	password := fmt.Sprintf("Pass!%d", time.Now().UnixNano())
 
 	registerBody := map[string]string{
-		"username": username,
-		"email":    email,
-		"phone":    phone,
-		"password": password,
+		"username":    username,
+		"email":       email,
+		"phoneNumber": phone,
+		"password":    password,
 	}
 	user := requestRegister(t, ts.URL, registerBody)
 
@@ -77,6 +78,12 @@ func TestAuthIntegration(t *testing.T) {
 	}
 
 	t.Logf("created user %s (id=%d) and successfully logged in via /login", username, user.ID)
+}
+
+type apiEnvelope[T any] struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    T      `json:"data"`
 }
 
 type loginResponseBody struct {
@@ -107,11 +114,11 @@ func requestRegister(t *testing.T, baseURL string, payload map[string]string) mo
 		t.Fatalf("register status = %d", resp.StatusCode)
 	}
 
-	var out models.User
+	var out apiEnvelope[models.User]
 	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
 		t.Fatalf("decode register response: %v", err)
 	}
-	return out
+	return out.Data
 }
 
 func requestLogin(t *testing.T, baseURL, identifier, password string) loginResponseBody {
@@ -139,11 +146,11 @@ func requestLogin(t *testing.T, baseURL, identifier, password string) loginRespo
 		t.Fatalf("login status = %d", resp.StatusCode)
 	}
 
-	var out loginResponseBody
+	var out apiEnvelope[loginResponseBody]
 	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
 		t.Fatalf("decode login response: %v", err)
 	}
-	return out
+	return out.Data
 }
 
 func mustGetEnv(t *testing.T, key string) string {
